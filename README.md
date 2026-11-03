@@ -1,4 +1,16 @@
+<div align="center">
+
 # NetEase Music for Omarchy
+
+**网易云音乐 · Omarchy 插件**
+
+[![CI](https://github.com/CheeseGrinder231/omarchy-netease-music/actions/workflows/ci.yml/badge.svg)](https://github.com/CheeseGrinder231/omarchy-netease-music/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Omarchy 4](https://img.shields.io/badge/Omarchy-4-ef4444.svg)](https://omarchy.org)
+
+<img src="docs/screenshot.jpg" alt="The NetEase Cloud Music player in dark mode, shown over the desktop from the Omarchy bar" width="720">
+
+</div>
 
 An [Omarchy](https://omarchy.org) plugin for [NetEase Cloud Music](https://music.163.com)
 (网易云音乐). It runs NetEase's own web player as an app, with a bar button and a
