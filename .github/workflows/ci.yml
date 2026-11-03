@@ -1,0 +1,35 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck
+        run: shellcheck -x bin/netease-music-webapp bin/netease-music-toggle install.sh uninstall.sh tests/run.sh
+      - name: plugin manifest
+        run: |
+          jq -e '.schemaVersion == 1
+            and (.id | test("^[A-Za-z0-9][A-Za-z0-9._-]*$"))
+            and (.id | startswith("omarchy.") | not)
+            and (.kinds | index("bar-widget")) != null
+            and (.entryPoints.barWidget | type) == "string"' manifest.json
+          test -f "$(jq -r .entryPoints.barWidget manifest.json)"
+          test -z "$(find . -name .git -prune -o -type l -print)"
+      - name: extension manifest
+        run: |
+          jq -e '.manifest_version == 3 and (.content_scripts[0].matches | length > 0)' extension/manifest.json
+          for f in $(jq -r '.content_scripts[0] | (.css + .js)[]' extension/manifest.json); do
+            test -f "extension/$f"
+          done
+      - name: tests
+        run: tests/run.sh

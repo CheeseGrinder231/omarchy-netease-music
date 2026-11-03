@@ -1,0 +1,44 @@
+#!/bin/bash
+# NetEase Cloud Music web player (https://music.163.com/st/webplayer) as an
+# Omarchy web app. It runs in its own Chromium profile, so it can have its own
+# window class, its own extension and, optionally, its own proxy.
+set -u
+
+here=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+data="${XDG_DATA_HOME:-$HOME/.local/share}"
+config="${XDG_CONFIG_HOME:-$HOME/.config}"
+profile="$data/netease-music-webapp"
+extension="$data/netease-music-webapp-ext"
+proxy_file="$config/omarchy-netease-music/proxy"
+
+# Refresh the browser's copy of the extension from this checkout on every
+# start, so plugin updates apply. With a light Omarchy theme, leave out the
+# script that switches the player to its dark theme.
+if [[ -f $here/../extension/manifest.json ]]; then
+  rm -rf -- "${extension:?}"
+  mkdir -p "$extension"
+  cp "$here"/../extension/* "$extension"/
+  if [[ -f $config/omarchy/current/theme/light.mode ]]; then
+    jq 'del(.content_scripts[0].js)' "$here/../extension/manifest.json" >"$extension/manifest.json"
+    rm -f "$extension/theme.js"
+  fi
+fi
+
+# --class gives the window the class "netease-music", so Hyprland can tell it
+# apart from other Chromium windows. --load-extension replaces Omarchy's
+# extension list for this profile only.
+args=("--user-data-dir=$profile" "--class=netease-music")
+[[ -f $extension/manifest.json ]] && args+=("--load-extension=$extension")
+
+# NetEase streams most songs only to mainland-China IP addresses. If a VPN
+# sends this machine's traffic abroad, put a local proxy that goes direct
+# (for example your VPN app's "direct" port) in the proxy file, as
+# http://127.0.0.1:PORT. It is used only while that port is listening.
+proxy=$(sed -n '1{s/[[:space:]]//g;p;}' "$proxy_file" 2>/dev/null)
+# shellcheck disable=SC2016 # positional args expand in the child shell
+if [[ $proxy =~ ^http://([A-Za-z0-9._-]+):([0-9]+)/?$ ]] &&
+  timeout 1 bash -c 'exec 3<>"/dev/tcp/$1/$2"' _ "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" 2>/dev/null; then
+  args+=("--proxy-server=${proxy%/}")
+fi
+
+exec omarchy-launch-webapp "https://music.163.com/st/webplayer" "${args[@]}"

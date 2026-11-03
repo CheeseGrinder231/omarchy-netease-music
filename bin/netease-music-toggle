@@ -1,0 +1,40 @@
+#!/bin/bash
+# Show or hide the NetEase web app as a drop-down on the Hyprland special
+# workspace "music". Hiding keeps it playing. Starts the app if it isn't
+# running, and pulls a normal app window into the drop-down.
+set -u
+
+class=netease-music # set by --class in netease-music-webapp
+special=music
+launcher="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/netease-music-webapp"
+
+find_window() {
+  hyprctl clients -j | jq -r --arg c "$class" \
+    'first(.[] | select(.class == $c)) | "\(.address) \(.workspace.name)"'
+}
+shown() {
+  hyprctl monitors -j | jq -e --arg w "special:$special" \
+    'any(.[]; .focused and .specialWorkspace.name == $w)' >/dev/null
+}
+dispatch() { hyprctl dispatch "$1" >/dev/null; }
+
+read -r addr where < <(find_window)
+
+if [[ -z ${addr:-} ]]; then
+  setsid -f "$launcher" >/dev/null 2>&1
+  for _ in $(seq 100); do # up to 20 s for the browser to open the window
+    sleep 0.2
+    read -r addr where < <(find_window)
+    [[ -n ${addr:-} ]] && break
+  done
+  [[ -n ${addr:-} ]] || exit 0
+fi
+
+if [[ $where == "special:$special" ]]; then
+  dispatch "hl.dsp.workspace.toggle_special(\"$special\")"
+  exit 0
+fi
+
+dispatch "hl.dsp.window.move({ window = \"address:$addr\", workspace = \"special:$special\", follow = false })"
+shown || dispatch "hl.dsp.workspace.toggle_special(\"$special\")"
+dispatch "hl.dsp.focus({ window = \"address:$addr\" })"

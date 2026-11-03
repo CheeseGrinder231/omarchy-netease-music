@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "netease.music",
+  "name": "NetEase Music",
+  "version": "1.0.0",
+  "author": "CheeseGrinder231",
+  "license": "MIT",
+  "description": "NetEase Cloud Music (网易云音乐) for Omarchy: the official web player as an app, shown and hidden from the bar or Super+Shift+M.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "NetEase Music",
+    "description": "Click to show or hide the player, middle click to play or pause, right click for the next song. The tooltip shows the current song.",
+    "category": "Media",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}

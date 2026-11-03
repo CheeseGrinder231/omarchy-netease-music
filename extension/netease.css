@@ -1,0 +1,9 @@
+/* Hide the home page's top row: the banner carousel, 下午好/猜你最近喜欢听
+ * and the 选场景 scene card. NetEase's class names end in a build hash
+ * (GridCarouselWrapper_gcvcmmp), so match on the stable prefixes, and only
+ * the rail that contains the recent-listen block (the home page has seven
+ * rails; this is the only one with it). */
+[class*="GridCarouselWrapper_"]:has([class*="RecentListenContainer_"]),
+.rail-wrapper:has([class*="RecentListenContainer_"]) {
+  display: none !important;
+}
