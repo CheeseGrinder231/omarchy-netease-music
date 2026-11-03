@@ -142,7 +142,7 @@ needs a real shell to test: install the plugin, then `omarchy restart shell`.
 This project started as a bar plugin built on NetEase's
 [ncm-cli](https://music.163.com/st/ncmcli). It moved to the web player
 because the CLI's open-platform access refuses VIP songs, and every user
-needs their own NetEase developer key. The old plugin is in the git history.
+needs their own NetEase developer key.
 
 Not on Omarchy? [Netease-Cloud-Music-Web-Player](https://github.com/feng-yifan/Netease-Cloud-Music-Web-Player)
 wraps the same web player as a standalone Electron app for any Linux desktop.
